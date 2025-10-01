@@ -2,9 +2,9 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
-  SafeAreaView,
   Pressable,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import {
   createTamagui,
   TamaguiProvider,
@@ -15,9 +15,9 @@ import {
   YStack,
   XStack,
 } from "tamagui";
-import { Eraser } from "@tamagui/lucide-icons";
 import { defaultConfig } from "@tamagui/config/v4";
 import { useState } from "react";
+import { Entypo } from "@expo/vector-icons";
 
 const config = createTamagui(defaultConfig);
 
@@ -29,14 +29,23 @@ export default function App() {
   const [input, setInput] = useState("");
   const [list, setList] = useState<Item[]>([]);
 
-  const handleChange = (text: string) => {
-    setInput(text);
-  };
+  const isValid = input.trim() !== "";
 
-  const handleAdd = () => {
+  function handleDelete(index: number) {
+    const newList = [...list];
+    newList.splice(index, 1);
+    setList(newList);
+  }
+
+  function handleChange(text: string) {
+    setInput(text);
+  }
+
+  function handleAdd() {
+    if (!isValid) return;
     setList([...list, { text: input }]);
     setInput("");
-  };
+  }
 
   return (
     <TamaguiProvider config={config}>
@@ -51,7 +60,16 @@ export default function App() {
               const numberedItem = `${index + 1}. ${item.text}`;
               return (
                 <View key={index}>
-                  <ListItem>{numberedItem}</ListItem>
+                  <ListItem>
+                    {numberedItem}{" "}
+                    <Pressable
+                      style={styles.inputIcon}
+                      onPress={() => handleDelete(index)}
+                      hitSlop={10}
+                    >
+                      <Entypo name="trash" size={24} />
+                    </Pressable>
+                  </ListItem>
                 </View>
               );
             })}
@@ -73,19 +91,22 @@ export default function App() {
                 onPress={() => setInput("")}
                 hitSlop={10}
               >
-                <Eraser size="$1" />
+                <Entypo name="eraser" size={24} />
               </Pressable>
             </View>
-            <Button onPress={handleAdd}>Add</Button>
+            <Button onPress={handleAdd} disabled={!isValid}>
+              Add
+            </Button>
           </XStack>
         </KeyboardAvoidingView>
       </SafeAreaView>
     </TamaguiProvider>
   );
 }
-
 const styles = StyleSheet.create({
   safeArea: {
+    backgroundColor: "#fff",
+    paddingBottom: 50,
     flex: 1,
   },
   screen: {

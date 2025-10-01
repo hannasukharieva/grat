@@ -1,5 +1,6 @@
 {
   "expo": {
+    "scheme": "grat",
     "name": "grat",
     "slug": "grat",
     "version": "1.0.0",
