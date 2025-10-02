@@ -9,15 +9,13 @@ import {
   createTamagui,
   TamaguiProvider,
   View,
-  Input,
-  Button,
   ListItem,
   YStack,
-  XStack,
 } from "tamagui";
 import { defaultConfig } from "@tamagui/config/v4";
 import { useState } from "react";
 import { Entypo } from "@expo/vector-icons";
+import { getIsInputValid, InputLine } from "../../../src";
 
 const config = createTamagui(defaultConfig);
 
@@ -29,8 +27,6 @@ export default function App() {
   const [input, setInput] = useState("");
   const [list, setList] = useState<Item[]>([]);
 
-  const isValid = input.trim() !== "";
-
   function handleDelete(index: number) {
     const newList = [...list];
     newList.splice(index, 1);
@@ -41,10 +37,14 @@ export default function App() {
     setInput(text);
   }
 
-  function handleAdd() {
-    if (!isValid) return;
-    setList([...list, { text: input }]);
+  function handleClear() {
     setInput("");
+  }
+
+  function handleAdd() {
+    if (!getIsInputValid(input)) return;
+    setList([...list, { text: input }]);
+    handleClear();
   }
 
   return (
@@ -74,30 +74,12 @@ export default function App() {
               );
             })}
           </YStack>
-          <XStack style={styles.container}>
-            <View style={styles.inputWrapper}>
-              <Input
-                size="$4"
-                flex={1}
-                borderWidth={2}
-                placeholder="Thank you for..."
-                onChangeText={handleChange}
-                value={input}
-                paddingRight={60}
-                returnKeyType="done"
-              />
-              <Pressable
-                style={styles.inputIcon}
-                onPress={() => setInput("")}
-                hitSlop={10}
-              >
-                <Entypo name="eraser" size={24} />
-              </Pressable>
-            </View>
-            <Button onPress={handleAdd} disabled={!isValid}>
-              Add
-            </Button>
-          </XStack>
+          <InputLine
+            input={input}
+            handleChange={handleChange}
+            handleClear={handleClear}
+            handleAdd={handleAdd}
+          />
         </KeyboardAvoidingView>
       </SafeAreaView>
     </TamaguiProvider>
